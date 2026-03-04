@@ -2,11 +2,11 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>数学バトルアリーナ｜中学生向け計算タイムアタックゲーム</title>
+<title>数学バトルアリーナ2.0</title>
 
 <style>
 body {
-  font-family: Arial, sans-serif;
+  font-family: Arial;
   text-align: center;
   background: #f4f6f9;
   margin: 0;
@@ -14,14 +14,17 @@ body {
   transition: background-color 0.3s;
 }
 
-button {
-  padding: 10px 15px;
+select, button, input {
+  padding: 8px;
   margin: 5px;
-  border-radius: 8px;
-  border: none;
+  font-size: 16px;
+}
+
+button {
   background-color: #4CAF50;
   color: white;
-  font-size: 16px;
+  border: none;
+  border-radius: 6px;
   cursor: pointer;
 }
 
@@ -29,107 +32,90 @@ button:hover {
   background-color: #45a049;
 }
 
-input {
-  padding: 8px;
-  font-size: 16px;
-}
+.correct { background-color: #d4edda !important; }
+.wrong { background-color: #f8d7da !important; }
 
-.timer {
-  font-size: 20px;
-  font-weight: bold;
-  color: red;
-}
+.timer { font-weight: bold; color: red; }
 
-.correct {
-  background-color: #d4edda !important;
-}
-
-.wrong {
-  background-color: #f8d7da !important;
-}
-
-footer {
-  margin-top: 40px;
-  padding: 20px;
-  background: #ddd;
-}
+.hidden { display: none; }
 </style>
 </head>
 
 <body>
 
-<h1>数学バトルアリーナ</h1>
-<p>60秒間で何問解けるか挑戦しよう！</p>
+<h1>数学バトルアリーナ 2.0</h1>
 
-<h2>学年を選択</h2>
-<button onclick="setGrade(1)">中1</button>
-<button onclick="setGrade(2)">中2</button>
-<button onclick="setGrade(3)">中3</button>
+<h2>① 学年</h2>
+<select id="gradeSelect">
+  <option value="1">中1</option>
+</select>
 
-<p id="currentGrade">現在：中1モード</p>
+<h2>② 単元</h2>
+<select id="unitSelect">
+  <option value="seifu">正負の数</option>
+  <option value="equation">方程式</option>
+</select>
 
-<hr>
+<h2>③ モード</h2>
+<select id="modeSelect">
+  <option value="time">60秒タイムアタック</option>
+  <option value="clear">10問クリア</option>
+</select>
 
-<div class="timer">残り時間：<span id="time">60</span>秒</div>
-
-<h2 id="problem"></h2>
-
-<input type="text" id="answer" inputmode="numeric" pattern="[0-9\-]*" placeholder="答え">
-<button onclick="checkAnswer()">回答</button>
-
-<p id="score">Score: 0</p>
-<p id="result"></p>
-
+<br>
 <button onclick="startGame()">ゲーム開始</button>
 
-<h2>🏆 自己ベスト</h2>
-<p id="bestScore">0</p>
-
 <hr>
-<footer>
-<p>© 2026 数学バトルアリーナ</p>
-<p>
-<a href="privacy.html">Privacy Policy</a> |
-<a href="contact.html">Contact</a>
-</p>
-</footer>
+
+<div id="gameArea" class="hidden">
+  <div class="timer" id="timerArea"></div>
+  <h2 id="problem"></h2>
+  <input type="text" id="answer">
+  <button onclick="checkAnswer()">回答</button>
+  <p id="score"></p>
+  <p id="result"></p>
+</div>
 
 <script>
 let score = 0;
 let correctAnswer;
-let currentGrade = 1;
 let timeLeft = 60;
 let timerInterval;
+let questionCount = 0;
+let currentMode;
+let currentUnit;
 let gameActive = false;
 
 const problem = document.getElementById("problem");
 const answerInput = document.getElementById("answer");
 
-function setGrade(grade) {
-  currentGrade = grade;
-  document.getElementById("currentGrade").innerText =
-    "現在：中" + grade + "モード";
-  loadBestScore();
-}
-
 function startGame() {
   score = 0;
-  timeLeft = 60;
+  questionCount = 0;
   gameActive = true;
-  document.getElementById("score").innerText = "Score: 0";
-  document.getElementById("result").innerText = "";
-  document.getElementById("time").innerText = timeLeft;
 
+  currentMode = document.getElementById("modeSelect").value;
+  currentUnit = document.getElementById("unitSelect").value;
+
+  document.getElementById("gameArea").classList.remove("hidden");
+  document.getElementById("result").innerText = "";
+  document.getElementById("score").innerText = "Score: 0";
+
+  answerInput.value = "";
   answerInput.focus();
 
-  clearInterval(timerInterval);
-  timerInterval = setInterval(() => {
-    timeLeft--;
-    document.getElementById("time").innerText = timeLeft;
-    if (timeLeft <= 0) {
-      endGame();
-    }
-  }, 1000);
+  if (currentMode === "time") {
+    timeLeft = 60;
+    document.getElementById("timerArea").innerText = "残り時間：" + timeLeft;
+    clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+      timeLeft--;
+      document.getElementById("timerArea").innerText = "残り時間：" + timeLeft;
+      if (timeLeft <= 0) endGame();
+    }, 1000);
+  } else {
+    document.getElementById("timerArea").innerText = "10問中 0 / 10";
+  }
 
   generateProblem();
 }
@@ -138,8 +124,7 @@ function endGame() {
   clearInterval(timerInterval);
   gameActive = false;
   document.getElementById("result").innerText =
-    "終了！あなたのスコアは " + score + " 点です！";
-  saveBestScore();
+    "終了！スコア：" + score;
 }
 
 function generateProblem() {
@@ -147,33 +132,54 @@ function generateProblem() {
 
   let a, b;
 
-  if (currentGrade === 1) {
-    a = Math.floor(Math.random() * 20) - 10;
-    b = Math.floor(Math.random() * 20) - 10;
-    correctAnswer = a + b;
-    problem.innerText = a + " + " + b;
+  // 正負の数
+  if (currentUnit === "seifu") {
+    const type = Math.floor(Math.random() * 4);
+
+    if (type === 0) {
+      a = rand(-10,10);
+      b = rand(-10,10);
+      correctAnswer = a + b;
+      problem.innerText = a + " + (" + b + ")";
+    }
+
+    if (type === 1) {
+      a = rand(-5,5);
+      correctAnswer = Math.abs(a);
+      problem.innerText = "|" + a + "|";
+    }
+
+    if (type === 2) {
+      a = rand(-5,5);
+      correctAnswer = a * a;
+      problem.innerText = a + "²";
+    }
+
+    if (type === 3) {
+      a = rand(-10,10);
+      b = rand(-10,10);
+      correctAnswer = a - b;
+      problem.innerText = a + " - (" + b + ")";
+    }
   }
 
-  if (currentGrade === 2) {
-    a = Math.floor(Math.random() * 12);
-    b = Math.floor(Math.random() * 12);
-    correctAnswer = a * b;
-    problem.innerText = a + " × " + b;
-  }
-
-  if (currentGrade === 3) {
-    a = Math.floor(Math.random() * 15);
-    correctAnswer = a * a;
-    problem.innerText = a + "² は？";
+  // 方程式 ax=b
+  if (currentUnit === "equation") {
+    a = rand(1,10);
+    let x = rand(1,10);
+    let bVal = a * x;
+    correctAnswer = x;
+    problem.innerText = a + "x = " + bVal;
   }
 }
 
 function checkAnswer() {
   if (!gameActive) return;
 
-  const userAnswer = answerInput.value;
+  const userAnswer = parseInt(answerInput.value);
+  questionCount++;
 
-  if (parseInt(userAnswer) === correctAnswer) {
+  if (userAnswer === correctAnswer) {
     score++;
     flash("correct");
   } else {
@@ -181,6 +187,13 @@ function checkAnswer() {
   }
 
   document.getElementById("score").innerText = "Score: " + score;
+
+  if (currentMode === "clear") {
+    document.getElementById("timerArea").innerText =
+      "10問中 " + questionCount + " / 10";
+    if (questionCount >= 10) endGame();
+  }
+
   answerInput.value = "";
   answerInput.focus();
   generateProblem();
@@ -193,28 +206,13 @@ function flash(type) {
   }, 300);
 }
 
-function saveBestScore() {
-  const key = "bestScore_grade" + currentGrade;
-  const best = localStorage.getItem(key);
-  if (!best || score > best) {
-    localStorage.setItem(key, score);
-  }
-  loadBestScore();
-}
-
-function loadBestScore() {
-  const key = "bestScore_grade" + currentGrade;
-  const best = localStorage.getItem(key) || 0;
-  document.getElementById("bestScore").innerText = best;
+function rand(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
 answerInput.addEventListener("keydown", function(event) {
-  if (event.key === "Enter") {
-    checkAnswer();
-  }
+  if (event.key === "Enter") checkAnswer();
 });
-
-loadBestScore();
 </script>
 
 </body>
