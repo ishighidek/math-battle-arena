@@ -11,6 +11,7 @@ body {
   background: #f4f6f9;
   margin: 0;
   padding: 20px;
+  transition: background-color 0.3s;
 }
 
 button {
@@ -39,19 +40,18 @@ input {
   color: red;
 }
 
+.correct {
+  background-color: #d4edda !important;
+}
+
+.wrong {
+  background-color: #f8d7da !important;
+}
+
 footer {
   margin-top: 40px;
   padding: 20px;
   background: #ddd;
-}
-.correct {
-  background-color: #d4edda;
-  transition: background-color 0.3s;
-}
-
-.wrong {
-  background-color: #f8d7da;
-  transition: background-color 0.3s;
 }
 </style>
 </head>
@@ -59,7 +59,6 @@ footer {
 <body>
 
 <h1>数学バトルアリーナ</h1>
-
 <p>60秒間で何問解けるか挑戦しよう！</p>
 
 <h2>学年を選択</h2>
@@ -104,6 +103,7 @@ let timerInterval;
 let gameActive = false;
 
 const problem = document.getElementById("problem");
+const answerInput = document.getElementById("answer");
 
 function setGrade(grade) {
   currentGrade = grade;
@@ -119,6 +119,8 @@ function startGame() {
   document.getElementById("score").innerText = "Score: 0";
   document.getElementById("result").innerText = "";
   document.getElementById("time").innerText = timeLeft;
+
+  answerInput.focus();
 
   clearInterval(timerInterval);
   timerInterval = setInterval(() => {
@@ -166,16 +168,31 @@ function generateProblem() {
   }
 }
 
-.correct {
-  background-color: #d4edda;
-  transition: background-color 0.3s;
+function checkAnswer() {
+  if (!gameActive) return;
+
+  const userAnswer = answerInput.value;
+
+  if (parseInt(userAnswer) === correctAnswer) {
+    score++;
+    flash("correct");
+  } else {
+    flash("wrong");
+  }
+
+  document.getElementById("score").innerText = "Score: " + score;
+  answerInput.value = "";
+  answerInput.focus();
+  generateProblem();
 }
 
-.wrong {
-  background-color: #f8d7da;
-  transition: background-color 0.3s;
+function flash(type) {
+  document.body.classList.add(type);
+  setTimeout(() => {
+    document.body.classList.remove(type);
+  }, 300);
 }
-  
+
 function saveBestScore() {
   const key = "bestScore_grade" + currentGrade;
   const best = localStorage.getItem(key);
@@ -191,14 +208,13 @@ function loadBestScore() {
   document.getElementById("bestScore").innerText = best;
 }
 
-loadBestScore();
-loadBestScore();
-
-document.getElementById("answer").addEventListener("keydown", function(event) {
+answerInput.addEventListener("keydown", function(event) {
   if (event.key === "Enter") {
     checkAnswer();
   }
 });
+
+loadBestScore();
 </script>
 
 </body>
