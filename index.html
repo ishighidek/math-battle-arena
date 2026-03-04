@@ -13,10 +13,6 @@ body {
   padding: 20px;
 }
 
-h1 {
-  color: #333;
-}
-
 button {
   padding: 10px 15px;
   margin: 5px;
@@ -37,6 +33,12 @@ input {
   font-size: 16px;
 }
 
+.timer {
+  font-size: 20px;
+  font-weight: bold;
+  color: red;
+}
+
 footer {
   margin-top: 40px;
   padding: 20px;
@@ -49,35 +51,31 @@ footer {
 
 <h1>数学バトルアリーナ</h1>
 
-<p>
-数学バトルアリーナは、中学生向けの計算力を鍛える
-無料タイムアタック型ゲームです。
-制限時間内にできるだけ多くの問題を解き、
-自己ベスト更新を目指しましょう。
-</p>
+<p>60秒間で何問解けるか挑戦しよう！</p>
 
 <h2>学年を選択</h2>
-<button onclick="setGrade(1)">中1モード</button>
-<button onclick="setGrade(2)">中2モード</button>
-<button onclick="setGrade(3)">中3モード</button>
+<button onclick="setGrade(1)">中1</button>
+<button onclick="setGrade(2)">中2</button>
+<button onclick="setGrade(3)">中3</button>
 
 <p id="currentGrade">現在：中1モード</p>
 
 <hr>
 
+<div class="timer">残り時間：<span id="time">60</span>秒</div>
+
 <h2 id="problem"></h2>
 
-<input type="number" id="answer" placeholder="答えを入力">
+<input type="number" id="answer" placeholder="答え">
 <button onclick="checkAnswer()">回答</button>
 
 <p id="score">Score: 0</p>
+<p id="result"></p>
 
-<h2>計算力を伸ばすメリット</h2>
-<p>
-計算スピードが上がると、定期テストや高校入試で
-大きなアドバンテージになります。
-毎日3分のトレーニングを習慣化しましょう。
-</p>
+<button onclick="startGame()">ゲーム開始</button>
+
+<h2>🏆 自己ベスト</h2>
+<p id="bestScore">0</p>
 
 <hr>
 <footer>
@@ -92,6 +90,9 @@ footer {
 let score = 0;
 let correctAnswer;
 let currentGrade = 1;
+let timeLeft = 60;
+let timerInterval;
+let gameActive = false;
 
 const problem = document.getElementById("problem");
 
@@ -99,10 +100,40 @@ function setGrade(grade) {
   currentGrade = grade;
   document.getElementById("currentGrade").innerText =
     "現在：中" + grade + "モード";
+  loadBestScore();
+}
+
+function startGame() {
+  score = 0;
+  timeLeft = 60;
+  gameActive = true;
+  document.getElementById("score").innerText = "Score: 0";
+  document.getElementById("result").innerText = "";
+  document.getElementById("time").innerText = timeLeft;
+
+  clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    document.getElementById("time").innerText = timeLeft;
+    if (timeLeft <= 0) {
+      endGame();
+    }
+  }, 1000);
+
   generateProblem();
 }
 
+function endGame() {
+  clearInterval(timerInterval);
+  gameActive = false;
+  document.getElementById("result").innerText =
+    "終了！あなたのスコアは " + score + " 点です！";
+  saveBestScore();
+}
+
 function generateProblem() {
+  if (!gameActive) return;
+
   let a, b;
 
   if (currentGrade === 1) {
@@ -127,6 +158,8 @@ function generateProblem() {
 }
 
 function checkAnswer() {
+  if (!gameActive) return;
+
   const userAnswer = document.getElementById("answer").value;
   if (parseInt(userAnswer) === correctAnswer) {
     score++;
@@ -136,7 +169,22 @@ function checkAnswer() {
   generateProblem();
 }
 
-generateProblem();
+function saveBestScore() {
+  const key = "bestScore_grade" + currentGrade;
+  const best = localStorage.getItem(key);
+  if (!best || score > best) {
+    localStorage.setItem(key, score);
+  }
+  loadBestScore();
+}
+
+function loadBestScore() {
+  const key = "bestScore_grade" + currentGrade;
+  const best = localStorage.getItem(key) || 0;
+  document.getElementById("bestScore").innerText = best;
+}
+
+loadBestScore();
 </script>
 
 </body>
