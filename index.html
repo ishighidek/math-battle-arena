@@ -132,47 +132,61 @@ function generateProblem() {
 
   let a, b;
 
-  // 正負の数
-  if (currentUnit === "seifu") {
-    const type = Math.floor(Math.random() * 4);
+// 正負の数
+if (currentUnit === "seifu") {
+  const type = Math.floor(Math.random() * 4);
 
-    if (type === 0) {
-      a = rand(-10,10);
-      b = rand(-10,10);
-      correctAnswer = a + b;
-      problem.innerText = a + " + (" + b + ")";
-    }
-
-    if (type === 1) {
-      a = rand(-5,5);
-      correctAnswer = Math.abs(a);
-      problem.innerText = "|" + a + "|";
-    }
-
-    if (type === 2) {
-      a = rand(-5,5);
-      correctAnswer = a * a;
-      problem.innerText = a + "²";
-    }
-
-    if (type === 3) {
-      a = rand(-10,10);
-      b = rand(-10,10);
-      correctAnswer = a - b;
-      problem.innerText = a + " - (" + b + ")";
-    }
+  function formatAfterOperator(n) {
+    return n < 0 ? "(" + n + ")" : n;
   }
 
-  // 方程式 ax=b
-  if (currentUnit === "equation") {
-    a = rand(1,10);
-    let x = rand(1,10);
-    let bVal = a * x;
-    correctAnswer = x;
-    problem.innerText = a + "x = " + bVal;
+  if (type === 0) {
+    a = rand(-10,10);
+    b = rand(-10,10);
+    correctAnswer = a + b;
+    problem.innerText = a + " + " + formatAfterOperator(b);
+  }
+
+  if (type === 1) {
+    a = rand(-5,5);
+    correctAnswer = Math.abs(a);
+    problem.innerText = "|" + a + "|";
+  }
+
+  if (type === 2) {
+    a = rand(-5,5);
+    correctAnswer = a * a;
+    problem.innerText = a + "²";
+  }
+
+  if (type === 3) {
+    a = rand(-10,10);
+    b = rand(-10,10);
+    correctAnswer = a - b;
+    problem.innerText = a + " - " + formatAfterOperator(b);
   }
 }
 
+// 方程式 ax = b
+if (currentUnit === "equation") {
+
+  function formatAfterOperator(n) {
+    return n < 0 ? "(" + n + ")" : n;
+  }
+
+  a = rand(-10,10);
+  while (a === 0) {
+    a = rand(-10,10);
+  }
+
+  let x = rand(-10,10);
+  let bVal = a * x;
+
+  correctAnswer = x;
+
+  problem.innerText = a + "x = " + formatAfterOperator(bVal);
+}
+  
 function checkAnswer() {
   if (!gameActive) return;
 
