@@ -192,21 +192,23 @@ function generateProblem() {
     }
   }
 
-  // ===== 方程式 ax = b =====
-  if (currentUnit === "equation") {
+// ===== 方程式 ax = b =====
+if (currentUnit === "equation") {
 
+  a = rand(-10, 10);
+  while (a === 0) {
     a = rand(-10, 10);
-    while (a === 0) {
-      a = rand(-10, 10);
-    }
-
-    let x = rand(-10, 10);
-    let bVal = a * x;
-
-    correctAnswer = x;
-
-    problem.innerText = a + "x = " + formatAfterOperator(bVal);
   }
+
+  let x = rand(-10, 10);
+  let bVal = a * x;
+
+  correctAnswer = x;
+
+  // = の後ろはそのまま表示（括弧なし）
+  problem.innerText = a + "x = " + bVal;
+}
+  
 }
 
 function checkAnswer() {
