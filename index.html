@@ -44,6 +44,15 @@ footer {
   padding: 20px;
   background: #ddd;
 }
+.correct {
+  background-color: #d4edda;
+  transition: background-color 0.3s;
+}
+
+.wrong {
+  background-color: #f8d7da;
+  transition: background-color 0.3s;
+}
 </style>
 </head>
 
@@ -157,19 +166,16 @@ function generateProblem() {
   }
 }
 
-function checkAnswer() {
-  if (!gameActive) return;
-
-  const userAnswer = document.getElementById("answer").value;
-  if (parseInt(userAnswer) === correctAnswer) {
-    score++;
-  }
-  document.getElementById("score").innerText = "Score: " + score;
-  document.getElementById("answer").value = "";
-  document.getElementById("answer").focus();
-  generateProblem();
+.correct {
+  background-color: #d4edda;
+  transition: background-color 0.3s;
 }
 
+.wrong {
+  background-color: #f8d7da;
+  transition: background-color 0.3s;
+}
+  
 function saveBestScore() {
   const key = "bestScore_grade" + currentGrade;
   const best = localStorage.getItem(key);
