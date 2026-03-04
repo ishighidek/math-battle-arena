@@ -2,11 +2,11 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>数学バトルアリーナ2.0</title>
+<title>数学バトルアリーナ 2.0</title>
 
 <style>
 body {
-  font-family: Arial;
+  font-family: Arial, sans-serif;
   text-align: center;
   background: #f4f6f9;
   margin: 0;
@@ -32,12 +32,18 @@ button:hover {
   background-color: #45a049;
 }
 
+.timer { font-weight: bold; color: red; }
+
 .correct { background-color: #d4edda !important; }
 .wrong { background-color: #f8d7da !important; }
 
-.timer { font-weight: bold; color: red; }
-
 .hidden { display: none; }
+
+footer {
+  margin-top: 40px;
+  padding: 20px;
+  background: #ddd;
+}
 </style>
 </head>
 
@@ -70,24 +76,43 @@ button:hover {
 <div id="gameArea" class="hidden">
   <div class="timer" id="timerArea"></div>
   <h2 id="problem"></h2>
-  <input type="text" id="answer">
+  <input type="text" id="answer" inputmode="numeric">
   <button onclick="checkAnswer()">回答</button>
   <p id="score"></p>
   <p id="result"></p>
 </div>
 
+<hr>
+
+<footer>
+  <p>© 2026 数学バトルアリーナ</p>
+  <p>
+    <a href="privacy.html">Privacy Policy</a> |
+    <a href="contact.html">Contact</a>
+  </p>
+</footer>
+
 <script>
 let score = 0;
-let correctAnswer;
+let correctAnswer = 0;
 let timeLeft = 60;
-let timerInterval;
+let timerInterval = null;
 let questionCount = 0;
-let currentMode;
-let currentUnit;
+let currentMode = "";
+let currentUnit = "";
 let gameActive = false;
 
 const problem = document.getElementById("problem");
 const answerInput = document.getElementById("answer");
+
+function rand(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+// 演算子の後に来る負の数だけ ( ) を付ける
+function formatAfterOperator(n) {
+  return n < 0 ? "(" + n + ")" : n;
+}
 
 function startGame() {
   score = 0;
@@ -104,15 +129,18 @@ function startGame() {
   answerInput.value = "";
   answerInput.focus();
 
+  clearInterval(timerInterval);
+
   if (currentMode === "time") {
     timeLeft = 60;
     document.getElementById("timerArea").innerText = "残り時間：" + timeLeft;
-    clearInterval(timerInterval);
+
     timerInterval = setInterval(() => {
       timeLeft--;
       document.getElementById("timerArea").innerText = "残り時間：" + timeLeft;
       if (timeLeft <= 0) endGame();
     }, 1000);
+
   } else {
     document.getElementById("timerArea").innerText = "10問中 0 / 10";
   }
@@ -132,80 +160,79 @@ function generateProblem() {
 
   let a, b;
 
-// 正負の数
-if (currentUnit === "seifu") {
-  const type = Math.floor(Math.random() * 4);
+  // ===== 正負の数 =====
+  if (currentUnit === "seifu") {
 
-  function formatAfterOperator(n) {
-    return n < 0 ? "(" + n + ")" : n;
+    const type = rand(0, 3);
+
+    if (type === 0) {
+      a = rand(-10, 10);
+      b = rand(-10, 10);
+      correctAnswer = a + b;
+      problem.innerText = a + " + " + formatAfterOperator(b);
+    }
+
+    if (type === 1) {
+      a = rand(-10, 10);
+      b = rand(-10, 10);
+      correctAnswer = a - b;
+      problem.innerText = a + " - " + formatAfterOperator(b);
+    }
+
+    if (type === 2) {
+      a = rand(-5, 5);
+      correctAnswer = Math.abs(a);
+      problem.innerText = "|" + a + "|";
+    }
+
+    if (type === 3) {
+      a = rand(-5, 5);
+      correctAnswer = a * a;
+      problem.innerText = a + "²";
+    }
   }
 
-  if (type === 0) {
-    a = rand(-10,10);
-    b = rand(-10,10);
-    correctAnswer = a + b;
-    problem.innerText = a + " + " + formatAfterOperator(b);
-  }
+  // ===== 方程式 ax = b =====
+  if (currentUnit === "equation") {
 
-  if (type === 1) {
-    a = rand(-5,5);
-    correctAnswer = Math.abs(a);
-    problem.innerText = "|" + a + "|";
-  }
+    a = rand(-10, 10);
+    while (a === 0) {
+      a = rand(-10, 10);
+    }
 
-  if (type === 2) {
-    a = rand(-5,5);
-    correctAnswer = a * a;
-    problem.innerText = a + "²";
-  }
+    let x = rand(-10, 10);
+    let bVal = a * x;
 
-  if (type === 3) {
-    a = rand(-10,10);
-    b = rand(-10,10);
-    correctAnswer = a - b;
-    problem.innerText = a + " - " + formatAfterOperator(b);
+    correctAnswer = x;
+
+    problem.innerText = a + "x = " + formatAfterOperator(bVal);
   }
 }
 
-// 方程式 ax = b
-if (currentUnit === "equation") {
-
-  function formatAfterOperator(n) {
-    return n < 0 ? "(" + n + ")" : n;
-  }
-
-  a = rand(-10,10);
-  while (a === 0) {
-    a = rand(-10,10);
-  }
-
-  let x = rand(-10,10);
-  let bVal = a * x;
-
-  correctAnswer = x;
-
-  problem.innerText = a + "x = " + formatAfterOperator(bVal);
-}
-  
 function checkAnswer() {
   if (!gameActive) return;
 
   const userAnswer = parseInt(answerInput.value);
-  questionCount++;
 
-  if (userAnswer === correctAnswer) {
+  if (!isNaN(userAnswer) && userAnswer === correctAnswer) {
     score++;
     flash("correct");
   } else {
     flash("wrong");
   }
 
+  questionCount++;
+
   document.getElementById("score").innerText = "Score: " + score;
 
   if (currentMode === "clear") {
     document.getElementById("timerArea").innerText =
       "10問中 " + questionCount + " / 10";
-    if (questionCount >= 10) endGame();
+
+    if (questionCount >= 10) {
+      endGame();
+      return;
+    }
   }
 
   answerInput.value = "";
@@ -220,22 +247,12 @@ function flash(type) {
   }, 300);
 }
 
-function rand(min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
 answerInput.addEventListener("keydown", function(event) {
-  if (event.key === "Enter") checkAnswer();
+  if (event.key === "Enter") {
+    checkAnswer();
+  }
 });
 </script>
-<hr>
 
-<footer style="margin-top:40px; padding:20px; background:#ddd;">
-  <p>© 2026 数学バトルアリーナ</p>
-  <p>
-    <a href="privacy.html">Privacy Policy</a> |
-    <a href="contact.html">Contact</a>
-  </p>
-</footer>
 </body>
 </html>
