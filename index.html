@@ -78,17 +78,19 @@ input {
 毎日3分のトレーニングを習慣化しましょう。
 </p>
 <script>
-let time = 60;
 let score = 0;
-let currentAnswer = 0;
-let timer;
+let correctAnswer;
 let currentGrade = 1;
+
+const problem = document.getElementById("problem");
 
 function setGrade(grade) {
   currentGrade = grade;
   document.getElementById("currentGrade").innerText =
     "現在：中" + grade + "モード";
+  generateProblem();
 }
+
 function generateProblem() {
   let a, b;
 
@@ -112,37 +114,18 @@ function generateProblem() {
     problem.innerText = a + "² は？";
   }
 }
-function startGame() {
-    time = 60;
-    score = 0;
-    document.getElementById("score").textContent = score;
-    document.getElementById("time").textContent = time;
-    document.getElementById("answer").disabled = false;
-    document.getElementById("answer").value = "";
-    generateQuestion();
 
-    timer = setInterval(() => {
-        time--;
-        document.getElementById("time").textContent = time;
-        if (time <= 0) {
-            clearInterval(timer);
-            document.getElementById("question").textContent = "終了！";
-            document.getElementById("answer").disabled = true;
-        }
-    }, 1000);
+function checkAnswer() {
+  const userAnswer = document.getElementById("answer").value;
+  if (parseInt(userAnswer) === correctAnswer) {
+    score++;
+  }
+  document.getElementById("score").innerText = "Score: " + score;
+  document.getElementById("answer").value = "";
+  generateProblem();
 }
 
-document.getElementById("answer").addEventListener("keydown", function(e) {
-    if (e.key === "Enter") {
-        let userAnswer = Number(this.value);
-        if (userAnswer === currentAnswer) {
-            score++;
-            document.getElementById("score").textContent = score;
-        }
-        this.value = "";
-        generateQuestion();
-    }
-});
+generateProblem();
 </script>
 <hr>
 <footer>
