@@ -2,16 +2,39 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>数学バトルアリーナ｜中学生向け計算タイムアタックゲーム</title>
+
 <style>
 body {
   font-family: Arial, sans-serif;
   text-align: center;
   background: #f4f6f9;
+  margin: 0;
+  padding: 20px;
 }
+
+h1 {
+  color: #333;
+}
+
+button {
+  padding: 10px 15px;
+  margin: 5px;
+  border-radius: 8px;
+  border: none;
+  background-color: #4CAF50;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+}
+
 button:hover {
   background-color: #45a049;
+}
+
+input {
+  padding: 8px;
+  font-size: 16px;
 }
 
 footer {
@@ -19,33 +42,11 @@ footer {
   padding: 20px;
   background: #ddd;
 }
-h1 {
-    margin-top: 20px;
-}
-<h2>学年を選択</h2>
-<button onclick="setGrade(1)">中1モード</button>
-<button onclick="setGrade(2)">中2モード</button>
-<button onclick="setGrade(3)">中3モード</button>
-
-<p id="currentGrade">現在：中1モード</p>
-#game {
-    margin-top: 30px;
-}
-button {
-    padding: 10px 20px;
-    font-size: 16px;
-    margin: 10px;
-    cursor: pointer;
-}
-input {
-    padding: 8px;
-    font-size: 16px;
-    width: 100px;
-    text-align: center;
-}
 </style>
 </head>
+
 <body>
+
 <h1>数学バトルアリーナ</h1>
 
 <p>
@@ -55,28 +56,38 @@ input {
 自己ベスト更新を目指しましょう。
 </p>
 
-<h2>このゲームの特徴</h2>
-<ul>
-<li>中学生レベルの計算問題</li>
-<li>制限時間付きタイムアタック</li>
-<li>スマホでもプレイ可能</li>
-<li>完全無料</li>
-</ul>
+<h2>学年を選択</h2>
+<button onclick="setGrade(1)">中1モード</button>
+<button onclick="setGrade(2)">中2モード</button>
+<button onclick="setGrade(3)">中3モード</button>
 
-<div id="game">
-    <p id="question">スタートを押してください</p>
-    <input type="number" id="answer" disabled>
-    <br>
-    <button onclick="startGame()">スタート</button>
-    <p>残り時間: <span id="time">60</span> 秒</p>
-    <p>スコア: <span id="score">0</span></p>
-</div>
+<p id="currentGrade">現在：中1モード</p>
+
+<hr>
+
+<h2 id="problem"></h2>
+
+<input type="number" id="answer" placeholder="答えを入力">
+<button onclick="checkAnswer()">回答</button>
+
+<p id="score">Score: 0</p>
+
 <h2>計算力を伸ばすメリット</h2>
 <p>
 計算スピードが上がると、定期テストや高校入試で
 大きなアドバンテージになります。
 毎日3分のトレーニングを習慣化しましょう。
 </p>
+
+<hr>
+<footer>
+<p>© 2026 数学バトルアリーナ</p>
+<p>
+<a href="privacy.html">Privacy Policy</a> |
+<a href="contact.html">Contact</a>
+</p>
+</footer>
+
 <script>
 let score = 0;
 let correctAnswer;
@@ -102,8 +113,8 @@ function generateProblem() {
   }
 
   if (currentGrade === 2) {
-    a = Math.floor(Math.random() * 20);
-    b = Math.floor(Math.random() * 10);
+    a = Math.floor(Math.random() * 12);
+    b = Math.floor(Math.random() * 12);
     correctAnswer = a * b;
     problem.innerText = a + " × " + b;
   }
@@ -127,13 +138,6 @@ function checkAnswer() {
 
 generateProblem();
 </script>
-<hr>
-<footer>
-<p>© 2026 数学バトルアリーナ</p>
-<p>
-<a href="privacy.html">Privacy Policy</a> |
-<a href="contact.html">Contact</a>
-</p>
-</footer>
+
 </body>
 </html>
