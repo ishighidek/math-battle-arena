@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>数学バトルアリーナ 2.0</title>
+<title>数学バトルアリーナ 2.1</title>
 
 <style>
 body {
@@ -49,11 +49,11 @@ footer {
 
 <body>
 
-<h1>数学バトルアリーナ 2.0</h1>
+<h1>数学バトルアリーナ 2.1</h1>
 
 <h2>① 学年</h2>
-<select id="gradeSelect">
-  <option value="1">中1</option>
+<select>
+  <option>中1</option>
 </select>
 
 <h2>② 単元</h2>
@@ -109,7 +109,6 @@ function rand(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-// 演算子の後に来る負の数だけ ( ) を付ける
 function formatAfterOperator(n) {
   return n < 0 ? "(" + n + ")" : n;
 }
@@ -184,61 +183,42 @@ function generateProblem() {
       correctAnswer = Math.abs(a);
       problem.innerText = "|" + a + "|";
     }
-  
-if (type === 3) {
 
-  a = rand(-5, 5);
-  while (a === 0) {
-    a = rand(-5, 5);
+    if (type === 3) {
+      a = rand(-5, 5);
+      while (a === 0) {
+        a = rand(-5, 5);
+      }
+
+      const withParentheses = Math.random() < 0.5;
+
+      if (withParentheses) {
+        // (-5)²
+        correctAnswer = a * a;
+        problem.innerText = "(" + a + ")²";
+      } else {
+        // -5² → -(5²)
+        correctAnswer = -(Math.abs(a) * Math.abs(a));
+        problem.innerText = a + "²";
+      }
+    }
   }
 
-  const withParentheses = Math.random() < 0.5;
+  // ===== 方程式 ax = b =====
+  if (currentUnit === "equation") {
 
-  if (withParentheses) {
-    // (-5)² パターン
-    correctAnswer = a * a;
-    problem.innerText = "(" + a + ")²";
-  } else {
-    // -5² パターン（括弧なし）
-    correctAnswer = -(Math.abs(a) * Math.abs(a));
-    problem.innerText = a + "²";
-  }
-}
-    
-   // ===== 方程式 ax = b =====
-if (currentUnit === "equation") {
-
-  a = rand(-10, 10);
-  while (a === 0) {
     a = rand(-10, 10);
+    while (a === 0) {
+      a = rand(-10, 10);
+    }
+
+    let x = rand(-10, 10);
+    let bVal = a * x;
+
+    correctAnswer = x;
+
+    problem.innerText = a + "x = " + bVal;
   }
-
-  let x = rand(-10, 10);
-  let bVal = a * x;
-
-  correctAnswer = x;
-
-  // = の後ろはそのまま表示（括弧なし）
-  problem.innerText = a + "x = " + bVal;
-}
-
-// ===== 方程式 ax = b =====
-if (currentUnit === "equation") {
-
-  a = rand(-10, 10);
-  while (a === 0) {
-    a = rand(-10, 10);
-  }
-
-  let x = rand(-10, 10);
-  let bVal = a * x;
-
-  correctAnswer = x;
-
-  // = の後ろはそのまま表示（括弧なし）
-  problem.innerText = a + "x = " + bVal;
-}
-  
 }
 
 function checkAnswer() {
