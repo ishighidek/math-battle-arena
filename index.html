@@ -185,12 +185,22 @@ function generateProblem() {
       problem.innerText = "|" + a + "|";
     }
 
-    if (type === 3) {
-      a = rand(-5, 5);
-      correctAnswer = a * a;
-      problem.innerText = a + "²";
-    }
+   // ===== 方程式 ax = b =====
+if (currentUnit === "equation") {
+
+  a = rand(-10, 10);
+  while (a === 0) {
+    a = rand(-10, 10);
   }
+
+  let x = rand(-10, 10);
+  let bVal = a * x;
+
+  correctAnswer = x;
+
+  // = の後ろはそのまま表示（括弧なし）
+  problem.innerText = a + "x = " + bVal;
+}
 
 // ===== 方程式 ax = b =====
 if (currentUnit === "equation") {
