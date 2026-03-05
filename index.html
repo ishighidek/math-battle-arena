@@ -184,8 +184,27 @@ function generateProblem() {
       correctAnswer = Math.abs(a);
       problem.innerText = "|" + a + "|";
     }
-  }
   
+if (type === 3) {
+
+  a = rand(-5, 5);
+  while (a === 0) {
+    a = rand(-5, 5);
+  }
+
+  const withParentheses = Math.random() < 0.5;
+
+  if (withParentheses) {
+    // (-5)² パターン
+    correctAnswer = a * a;
+    problem.innerText = "(" + a + ")²";
+  } else {
+    // -5² パターン（括弧なし）
+    correctAnswer = -(Math.abs(a) * Math.abs(a));
+    problem.innerText = a + "²";
+  }
+}
+    
    // ===== 方程式 ax = b =====
 if (currentUnit === "equation") {
 
